@@ -9,7 +9,8 @@ export default function Layout() {
         <strong>หลังร้าน</strong>
         {can('order.view') && <NavLink to="/">ออเดอร์</NavLink>}
         {can('table.view') && <NavLink to="/tables">โต๊ะ / QR</NavLink>}
-        {can('menu.view') && <NavLink to="/menu">เมนู</NavLink>}
+        {/* แถบเมนูสำหรับผู้จัดการเมนูเท่านั้น (admin ผ่านทุกสิทธิ์) — staff ทั่วไปไม่ต้องเห็น */}
+        {can('menu.manage') && <NavLink to="/menu">เมนู</NavLink>}
         {me && <span className="muted">{me.role}</span>}
         <button className="link" onClick={signOut}>ออกจากระบบ</button>
       </header>
