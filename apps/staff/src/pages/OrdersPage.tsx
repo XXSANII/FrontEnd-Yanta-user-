@@ -1,5 +1,6 @@
 import { formatBaht, type Order, type OrderItem } from '@yanta/shared'
 import { useCallback, useEffect, useState } from 'react'
+import AddItemModal from '../components/AddItemModal'
 import { useAuth } from '../context/AuthContext'
 import { describeError, fetchOrders, payOrder, paySession, updateOrderStatus } from '../services/staffService'
 import { describeItemOptions, itemLineKey, itemNote } from '../utils/orderItems'
@@ -56,6 +57,7 @@ export default function OrdersPage() {
   const { can } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [addTo, setAddTo] = useState<{ orderId: string; table: string | null } | null>(null)
 
   const load = useCallback(() => {
     fetchOrders().then((o) => { setOrders(o); setError(null) }).catch((e) => setError(describeError(e, 'โหลดออเดอร์ไม่สำเร็จ')))
@@ -126,6 +128,12 @@ export default function OrdersPage() {
                 </ul>
                 <div className="order-foot">
                   <strong>รวม {formatBaht(b.total)}</strong>
+                  <span>
+                  {can('order.update_status') && (
+                    <button className="ghost" onClick={() => setAddTo({ orderId: b.orders[b.orders.length - 1].id, table: b.table })}>
+                      + เพิ่มรายการ
+                    </button>
+                  )}
                   {can('payment.confirm') && (
                     <button
                       className="primary"
@@ -139,6 +147,7 @@ export default function OrdersPage() {
                       รับชำระเงิน
                     </button>
                   )}
+                  </span>
                 </div>
                 {blocked && <small className="muted">ยังมีออเดอร์ใหม่ของโต๊ะนี้ที่ยังไม่ทำเสร็จ</small>}
               </article>
@@ -146,6 +155,14 @@ export default function OrdersPage() {
           })}
         </section>
       </div>
+      {addTo && (
+        <AddItemModal
+          orderId={addTo.orderId}
+          tableLabel={addTo.table}
+          onClose={() => setAddTo(null)}
+          onAdded={() => { setAddTo(null); load() }}
+        />
+      )}
     </>
   )
 }

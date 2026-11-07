@@ -16,6 +16,10 @@ export async function fetchOrders(): Promise<Order[]> {
 }
 export const updateOrderStatus = (id: string, status: OrderStatus) =>
   api(`/api/orders/${id}/status`, { method: 'PATCH', body: { status } })
+export interface AddItemInput { productId: string; quantity: number; optionIds: string[]; note: string | null }
+/** พนักงานเพิ่มรายการเข้าออเดอร์ที่มีอยู่ (เช่น ลูกค้าลืมกดสั่งก่อนเช็คบิล) */
+export const addOrderItem = (orderId: string, i: AddItemInput) =>
+  api(`/api/orders/${orderId}/items`, { method: 'POST', body: i })
 export const payOrder = (id: string) => api(`/api/orders/${id}/pay`, { method: 'POST' })
 
 // ---------- โต๊ะ / session ----------
