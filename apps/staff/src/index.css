@@ -92,3 +92,40 @@ h1 { margin:0 0 16px; font-size:1.4rem; } h2 { margin:0 0 10px; font-size:1.05re
 .draft-sum { text-align:right; font-weight:600; }
 .sheet-overlay { z-index:60; }
 @media (max-width:520px) { .modal.add-modal { height:96vh; padding:12px; } .add-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* ---------- หน้าเมนู: เลือกรูปแบบการจัดหน้า (รายการ / กริด / การ์ด) ---------- */
+.head-tools { display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.seg { display:inline-flex; background:#fff; border:1px solid var(--line); border-radius:10px; padding:3px; gap:2px; }
+.seg button { background:none; border-radius:8px; padding:6px 14px; font:inherit; font-size:.9rem; color:var(--muted); }
+.seg button.on { background:var(--brand); color:#fff; font-weight:600; }
+.mp-items { margin:0 0 24px; }
+.mp-item { background:#fff; }
+.mp-img { background:#e8eded; object-fit:cover; display:block; }
+.mp-body { display:grid; gap:2px; min-width:0; align-content:start; }
+.mp-name { font-size:1.02rem; } .mp-price { color:var(--brand-dark); font-weight:600; } .mp-desc { color:var(--muted); }
+.mp-actions { display:flex; gap:10px; align-items:center; } .mp-actions .ghost { margin:0; }
+.mp-item.off .mp-img { filter:grayscale(1); opacity:.55; } .mp-item.off .mp-name { color:var(--muted); }
+.mp-empty { margin:0; padding:12px 16px; background:#fff; border-radius:12px; }
+
+/* รายการ: แถวเดิมแต่ใหญ่ขึ้น */
+.mp-list { background:#fff; border-radius:12px; overflow:hidden; }
+.mp-list .mp-item { display:flex; align-items:center; gap:16px; padding:14px 18px; border-bottom:1px solid var(--line); }
+.mp-list .mp-item:last-child { border:0; }
+.mp-list .mp-img { width:84px; height:84px; border-radius:12px; flex:none; }
+.mp-list .mp-body { flex:1; } .mp-list .mp-name { font-size:1.1rem; } .mp-list .mp-price { font-size:1rem; }
+
+/* กริด: ตารางการ์ดเล็ก เห็นเมนูได้เยอะ */
+.mp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:14px; }
+.mp-grid .mp-item { display:flex; flex-direction:column; gap:8px; padding:10px; border:1px solid var(--line); border-radius:14px; }
+.mp-grid .mp-img { width:100%; aspect-ratio:1; border-radius:10px; }
+.mp-grid .mp-desc { display:none; } .mp-grid .mp-body { flex:1; }
+.mp-grid .mp-actions { flex-direction:column; align-items:stretch; gap:6px; } .mp-grid .mp-actions .ghost { padding:6px 10px; }
+
+/* การ์ด: ใหญ่ รูปเด่น พร้อมคำอธิบาย */
+.mp-card { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; }
+.mp-card .mp-item { display:flex; flex-direction:column; border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+.mp-card .mp-img { width:100%; aspect-ratio:16/10; }
+.mp-card .mp-body { padding:12px 16px 4px; gap:4px; flex:1; } .mp-card .mp-name { font-size:1.15rem; } .mp-card .mp-price { font-size:1.05rem; }
+.mp-card .mp-desc { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.mp-card .mp-actions { padding:8px 16px 14px; justify-content:space-between; }
+@media (max-width:520px) { .mp-grid { grid-template-columns:repeat(2,1fr); } .page-head { flex-wrap:wrap; gap:10px; } }

@@ -10,6 +10,22 @@ import {
 
 type Editing = { product: Product | null; category: CategoryId } | null
 
+/** รูปแบบการจัดหน้า: list = แถว (ขนาดใหญ่ขึ้น), grid = ตารางรูปเล็ก, card = การ์ดใหญ่พร้อมคำอธิบาย */
+type View = 'list' | 'grid' | 'card'
+const VIEWS: { id: View; label: string }[] = [
+  { id: 'list', label: 'รายการ' },
+  { id: 'grid', label: 'กริด' },
+  { id: 'card', label: 'การ์ด' },
+]
+const VIEW_KEY = 'yanta.staff.menuView'
+
+const readView = (): View => {
+  try {
+    const v = localStorage.getItem(VIEW_KEY)
+    return v === 'grid' || v === 'card' ? v : 'list'
+  } catch { return 'list' }
+}
+
 export default function MenuPage() {
   const canManage = useAuth().can('menu.manage') // staff ทั่วไปดูเมนูได้อย่างเดียว
   const [products, setProducts] = useState<Product[]>([])
@@ -18,6 +34,12 @@ export default function MenuPage() {
   const [error, setError] = useState<string | null>(null)
   const [groupsError, setGroupsError] = useState<string | null>(null)
   const [editing, setEditing] = useState<Editing>(null)
+  const [view, setViewState] = useState<View>(readView)
+
+  const setView = (v: View) => {
+    setViewState(v)
+    try { localStorage.setItem(VIEW_KEY, v) } catch { /* จำค่าไม่ได้ก็ใช้ต่อได้ */ }
+  }
 
   const load = useCallback(() => {
     // ชุดตัวเลือกโหลดแยก: ถ้าพลาด (เช่น ยังไม่ migrate DB) เมนู/หมวดต้องยังแสดงได้
@@ -53,7 +75,14 @@ export default function MenuPage() {
     <>
       <div className="page-head">
         <h1>เมนู</h1>
-        {canManage && <button className="primary" onClick={() => setEditing({ product: null, category: categories[0]?.id ?? '' })}>+ เพิ่มเมนู</button>}
+        <div className="head-tools">
+          <div className="seg" role="group" aria-label="รูปแบบการแสดงผล">
+            {VIEWS.map((v) => (
+              <button key={v.id} type="button" className={view === v.id ? 'on' : ''} aria-pressed={view === v.id} onClick={() => setView(v.id)}>{v.label}</button>
+            ))}
+          </div>
+          {canManage && <button className="primary" onClick={() => setEditing({ product: null, category: categories[0]?.id ?? '' })}>+ เพิ่มเมนู</button>}
+        </div>
       </div>
       {error && <div className="notice error">{error}</div>}
 
@@ -65,24 +94,26 @@ export default function MenuPage() {
               {c.name} <span className="pill">{list.length}</span>
               {canManage && <button className="link-btn" onClick={() => setEditing({ product: null, category: c.id })}>+ เพิ่มในหมวดนี้</button>}
             </h2>
-            <ul className="menu-list">
-              {list.length === 0 && <li className="muted">ยังไม่มีเมนูในหมวดนี้</li>}
+            <div className={`mp-items mp-${view}`}>
+              {list.length === 0 && <p className="muted mp-empty">ยังไม่มีเมนูในหมวดนี้</p>}
               {list.map((p) => (
-                <li key={p.id}>
-                  <img className="thumb" src={p.image_url || '/placeholder.svg'} alt="" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
-                  <span className="grow">
-                    <strong>{p.name}</strong>
-                    <span className="muted"> {formatBaht(p.price)}</span>
-                    {p.description && <small className="muted block">{p.description}</small>}
-                  </span>
-                  <label className="switch">
-                    <input type="checkbox" checked={p.is_available} disabled={!canManage} onChange={() => toggle(p)} />
-                    {p.is_available ? 'พร้อมขาย' : 'หมด'}
-                  </label>
-                  {canManage && <button className="ghost" onClick={() => setEditing({ product: p, category: p.category })}>แก้ไข</button>}
-                </li>
+                <article key={p.id} className={`mp-item${p.is_available ? '' : ' off'}`}>
+                  <img className="mp-img" src={p.image_url || '/placeholder.svg'} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+                  <div className="mp-body">
+                    <strong className="mp-name">{p.name}</strong>
+                    <span className="mp-price">{formatBaht(p.price)}</span>
+                    {p.description && <small className="mp-desc">{p.description}</small>}
+                  </div>
+                  <div className="mp-actions">
+                    <label className="switch">
+                      <input type="checkbox" checked={p.is_available} disabled={!canManage} onChange={() => toggle(p)} />
+                      {p.is_available ? 'พร้อมขาย' : 'หมด'}
+                    </label>
+                    {canManage && <button className="ghost" onClick={() => setEditing({ product: p, category: p.category })}>แก้ไข</button>}
+                  </div>
+                </article>
               ))}
-            </ul>
+            </div>
           </section>
         )
       })}
