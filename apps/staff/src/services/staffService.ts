@@ -14,6 +14,15 @@ export const fetchMe = () => api<Me>('/api/auth/me')
 export async function fetchOrders(): Promise<Order[]> {
   return (await api<OrderDto[]>('/api/orders')).map(mapOrder)
 }
+/** ออเดอร์ที่รอดำเนินการเท่านั้น (ใช้ตรวจออเดอร์ใหม่เพื่อเล่นเสียงแจ้งเตือน) */
+export async function fetchPendingOrders(): Promise<Order[]> {
+  return (await api<OrderDto[]>('/api/orders', { query: { status: 'pending' } })).map(mapOrder)
+}
+/** ออเดอร์ที่ขายได้แล้ว (ทำเสร็จ + ชำระแล้ว) ตั้งแต่เวลาที่ระบุ ใช้สรุปยอดใน Dashboard */
+export async function fetchSalesSince(since: Date): Promise<Order[]> {
+  const rows = await api<OrderDto[]>('/api/orders', { query: { status: ['complete', 'paid'], since: since.toISOString() } })
+  return rows.map(mapOrder)
+}
 export const updateOrderStatus = (id: string, status: OrderStatus) =>
   api(`/api/orders/${id}/status`, { method: 'PATCH', body: { status } })
 export interface AddItemInput { productId: string; quantity: number; optionIds: string[]; note: string | null }
